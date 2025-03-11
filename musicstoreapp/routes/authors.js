@@ -1,35 +1,3 @@
-module.exports = function(app,twig) {
-    app.get("/authors/add", function(req,res) {
-        var lista = [
-            {
-                "name": "Cantante",
-                "value": "cantante"
-            },
-            {
-                "name": "Batería",
-                "value": "batería"
-            },
-            {
-                "name": "Guitarrista",
-                "value": "guitarrista"
-            },
-            {
-                "name": "Bajista",
-                "value": "bajista"
-            },
-            {
-                "name": "Pianista",
-                "value": "pianista"
-            }
-        ];
-        var list = {
-            rols: lista
-        }
-        res.render("authors/add.twig", list);
-    });
-
-
-    app.get("/authors" , function(req,res){
         const lista = [{
             "title": "Pepe",
             "group": "Red hot chilli peppers",
@@ -43,6 +11,33 @@ module.exports = function(app,twig) {
             "group": "Real madrid",
             "role": "cantante"
         }];
+module.exports = function(app,twig) {
+    app.get("/authors/add", function(req,res) {
+        var lista = [
+            {
+                "name": "Cantante",
+            },
+            {
+                "name": "Batería",
+            },
+            {
+                "name": "Guitarrista",
+            },
+            {
+                "name": "Bajista",
+            },
+            {
+                "name": "Pianista",
+            }
+        ];
+        var list = {
+            rols: lista
+        }
+        res.render("authors/add.twig", list);
+    });
+
+
+    app.get("/authors" , function(req,res){
 
         const response = {
             seller: "Autores",
@@ -51,7 +46,15 @@ module.exports = function(app,twig) {
         res.render("authors/authors.twig", response);
     });
 
+    app.get("/authors/filter/:rol", function (req,res){
+        var rol = req.params.rol;
+        let response = {
+            seller: "Lista autores filtro",
+            authors: lista.filter(l => l.role.trim().toLowerCase() == rol.trim().toLowerCase())
+        }
+        res.render("authors/authors.twig", response);
 
+    });
 
     app.post("/authors/add", function (req,res){
         let response = "Cantante se llama";
