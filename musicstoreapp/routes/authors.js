@@ -1,7 +1,34 @@
 module.exports = function(app,twig) {
-    app.get("/authors/add", function(req,res){
-    res.render("authors/add.twig");
+    app.get("/authors/add", function(req,res) {
+        var lista = [
+            {
+                "name": "Cantante",
+                "value": "cantante"
+            },
+            {
+                "name": "Batería",
+                "value": "batería"
+            },
+            {
+                "name": "Guitarrista",
+                "value": "guitarrista"
+            },
+            {
+                "name": "Bajista",
+                "value": "bajista"
+            },
+            {
+                "name": "Pianista",
+                "value": "pianista"
+            }
+        ];
+        var list = {
+            rols: lista
+        }
+        res.render("authors/add.twig", list);
     });
+
+
     app.get("/authors" , function(req,res){
         const lista = [{
             "title": "Pepe",
