@@ -24,21 +24,75 @@ module.exports = function(app,songsRepository) {
 
         res.render("shop.twig", response);
     });
-
-    app.get('/add', function(req, res) {
-        if ( req.session.user == null){
-            res.redirect("/shop");
-            return;
+    app.get('/songs/edit/:id', function (req, res) {
+        let filter = { _id: new ObjectId(req.params.id) };
+        songsRepository.findSong(filter, {}).then(song => {
+            res.render('songs/edit.twig', { song: song });
+        }).catch(error => {
+            res.send("Se ha producido un error al recuperar la canción " + error);
+        });
+    });
+    app.post('/songs/edit/:id', function (req, res){
+        let song = {
+            title: req.body.title,
+            kind: req.body.kind,
+            price: req.body.price,
+            author: req.session.user
         }
+        let songId = req.params.id;
+        let filter = {_id: new ObjectId(songId)};
+        //que no se cree un documento nuevo, si no existe
+        const options = {upsert: false}
+        songsRepository.updateSong(song, filter, options).then(result => {
+            //res.send("Se ha modificado "+ result.modifiedCount + " registro");
+            step1UpdateCover(req.files, songId, function (result) {
+                if (result == null) {
+                    res.send("Error al actualizar la portada o el audio de la canción");
+                } else {
+                    res.send("Se ha modificado el registro correctamente");
+                }
+            });
+        }).catch(error => {
+            res.send("Se ha producido un error al modificar la canción " + error)
+        });
+    })
+
+    function step1UpdateCover(files, songId, callback) {
+        if (files && files.cover != null) {
+            let image = files.cover;
+            image.mv(app.get("uploadPath") + '/public/covers/' + songId + '.png', function (err) {
+                if (err) {
+                    console.log("hola")
+                    callback(null); // ERROR
+                } else {
+                    step2UpdateAudio(files, songId, callback); // SIGUIENTE
+                }
+            });
+        } else {
+            step2UpdateAudio(files, songId, callback); // SIGUIENTE
+        }
+    };
+    function step2UpdateAudio(files, songId, callback) {
+        if (files && files.audio != null)
+        {let audio = files.audio;
+            audio.mv(app.get("uploadPath") + '/public/audios/' + songId + '.mp3', function (err) {
+                if (err) {
+            console.log("hola")
+                    callback(null); // ERROR
+                } else {
+                    callback(true); // FIN
+                }
+            });
+        } else {
+            callback(true); // FIN
+        }
+    };
+    app.get('/add', function(req, res) {
 
         let response = parseInt(req.query.num1) + parseInt(req.query.num2);
         res.send(String(response));
     });
     app.get('/songs/add', function (req, res) {
-        if ( req.session.user == null){
-            res.redirect("/shop");
-            return;
-        }
         res.render("songs/add.twig");
     });
     app.get('/songs/:id', function (req, res) {
@@ -56,10 +110,6 @@ module.exports = function(app,songsRepository) {
         res.send(response);
     });
     app.post("/songs/add", function (req,res){
-        if ( req.session.user == null){
-            res.redirect("/shop");
-            return;
-        }
 
         let song = {
             title: req.body.title,
@@ -103,6 +153,15 @@ module.exports = function(app,songsRepository) {
             res.send("Se ha producido un error al listar las canciones " + error);
         });
     });
+    app.get('/publications', function (req, res) {
+        let filter = {author : req.session.user};
+        let options = {sort: {title: 1}};
+        songsRepository.getSongs(filter, options).then(songs => {
+            res.render("publication.twig", {songs: songs});
+        }).catch(error => {
+            res.send("Se ha producido un error al listar las publicaciones del usuario:" + error)
+        });
+    })
 
     app.get('/promo*', function (req, res) {
 
