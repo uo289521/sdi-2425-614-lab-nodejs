@@ -37,7 +37,7 @@ module.exports = function (app, favoriteSongsRepository) {
 
         app.get('/songs/favorite/delete/:id', function (req,res){
             const songId = req.params.id; // Obtener el ID de la canción desde la URL
-            // Llamar a la función del repositorio para eliminar la canción
+            // Formato commit
             favoriteSongsRepository.deleteFavoriteSong(new ObjectId(songId)).then(p => {
                 res.redirect("/shop");
             }).catch( error => {
