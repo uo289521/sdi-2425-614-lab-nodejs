@@ -1,0 +1,28 @@
+{% extends "layout.twig" %}
+
+{% block title %} Canciones Favoritas {% endblock %}
+
+{% block main_container %}
+    <h2>Canciones Favoritas</h2>
+    <div class="row">
+        {% for song in songs %}
+            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3">
+                <div style="width:200px">
+                    <img src="/covers/{{ song.song_id }}.png" alt="logo"/>
+
+                    <!-- Mostrar todos los atributos de la canción -->
+                    <div><strong>Título:</strong> {{ song.title }}</div>
+                    <div><strong>Usuario:</strong> {{ song.user }}</div>
+                    <div><strong>Precio:</strong> {{ song.price }} €</div>
+                    <div><strong>Fecha:</strong> {{ song.date | date("d/m/Y H:i") }}</div> <!-- Formato de fecha -->
+                    <!-- Enlace para eliminar la canción -->
+                    <a href="/songs/favorite/delete/{{ song._id }}" class="btn btn-danger">Eliminar</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="total-price">
+        <h3>Precio Total: {{ totalPrice }} €</h3>
+    </div>
+{% endblock %}

@@ -15,6 +15,7 @@ const userSessionRouter = require('./routes/userSessionRouter');
 const userAudiosRouter = require('./routes/userAudiosRouter');
 app.use("/songs/add",userSessionRouter);
 app.use("/publications",userSessionRouter);
+app.use("/songs/favorites", userSessionRouter);
 app.use("/audios/",userAudiosRouter);
 app.use("/shop/",userSessionRouter)
 
@@ -38,6 +39,11 @@ var autorRoute = require('./routes/authors');
 const { MongoClient } = require("mongodb");
 const connectionStrings = 'mongodb+srv://admin:sdi@musicstoreapp.y741w.mongodb.net/?retryWrites=true&w=majority&appName=musicstoreapp'
 const dbClient = new MongoClient(connectionStrings);
+const favoritesSongsRepo = require("./repositories/favoriteSongsRepository.js");
+favoritesSongsRepo.init(app,dbClient);
+require("./routes/favoriteSongs.js")(app, favoritesSongsRepo);
+
+
 let songsRepository = require("./repositories/songsRepository.js");
 songsRepository.init(app, dbClient);
 require("./routes/songs.js")(app,songsRepository);
@@ -45,6 +51,9 @@ require("./routes/authors")(app);
 const usersRepository = require("./repositories/usersRepository.js");
 usersRepository.init(app, dbClient);
 require("./routes/users.js")(app, usersRepository);
+
+
+
 
 
 
