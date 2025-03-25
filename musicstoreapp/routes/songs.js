@@ -147,6 +147,7 @@ module.exports = function(app,songsRepository) {
         let filter = {user: user};
         let options = {projection: {_id: 0, song_id: 1}};
 
+
         return songsRepository.getPurchases(filter, options).then(purchasedIds => {
             const purchasedSongs = purchasedIds.map(purchase => purchase.song_id); // Mapeamos los ids de las canciones compradas
 
