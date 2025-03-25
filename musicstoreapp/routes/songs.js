@@ -6,6 +6,10 @@ module.exports = function(app,songsRepository) {
             user: req.session.user,
             song_id: songId
         }
+        let bool = canPlay(req.session.user, songId);
+        if(!bool)
+            res.send("no se puede comprar esta cancion")
+
         songsRepository.buySong(shop).then(result => {
             if (result.insertedId === null || typeof (result.insertedId) === undefined) {
                 res.send("Se ha producido un error al comprar la canción")
@@ -126,15 +130,51 @@ module.exports = function(app,songsRepository) {
     app.get('/songs/add', function (req, res) {
         res.render("songs/add.twig");
     });
-    app.get('/songs/:id', function (req, res) {
+    app.get('/songs/:id',  async function (req, res) {
         let filter = {_id:  new ObjectId(req.params.id)};
         let options = {};
-        songsRepository.findSong(filter, options).then(song => {
-            res.render("songs/song.twig", {song: song});
+         songsRepository.findSong(filter, options).then(async song => {
+            //Codigo de ver si eres el dueño o ya la compraste
+            let user = req.session.user;
+            let songid = song._id
+            let bool = await canPlay(user, songid)
+            res.render("songs/song.twig", {song: song, bool: bool});
         }).catch(error => {
             res.send("Se ha producido un error al buscar la canción " + error)
         });
     })
+    async function canPlay(user, song){
+        let filter = {user: user};
+        let options = {projection: {_id: 0, song_id: 1}};
+
+        return songsRepository.getPurchases(filter, options).then(purchasedIds => {
+            const purchasedSongs = purchasedIds.map(purchase => purchase.song_id); // Mapeamos los ids de las canciones compradas
+
+            for (let i = 0; i < purchasedSongs.length; i++) {
+                if (purchasedSongs[i].equals(song)) {
+                    return canOwner(user, song);  // Si el _id de la canción coincide, devolvemos true
+                }
+            }
+
+            return false;  // Si no encontramos ninguna coincidencia, devolvemos false
+        }).catch(error => {
+            console.error("Error al obtener las compras del usuario: " + error);
+            return false;  // Si hay un error, devolvemos false
+        });
+    }
+
+    async function canOwner(user,song){
+        let filter = {author : user};
+        let options = {sort: {title: 1}};
+        const songs = await songsRepository.getSongs(filter, options)
+        for (let i = 0; i < songs.length; i++){
+            if(songs[i]._id.equals(song)){
+                return true;
+            }
+        }
+        return false;
+
+    }
     app.get('/songs/delete/:id', function (req, res) {
         console.log("eliminadno")
         let filter = {_id: new ObjectId(req.params.id)};
