@@ -1,6 +1,12 @@
 {
+  "name": "memoryapp",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {},
   "dependencies": {
+    "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "http-errors": "~1.6.3"
   }
 }
