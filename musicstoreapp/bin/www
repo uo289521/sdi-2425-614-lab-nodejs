@@ -14,6 +14,8 @@ let privateKey = fs.readFileSync(__dirname + '/certificates/server.key', 'utf8')
 let certificate = fs.readFileSync(__dirname+ '/certificates/server.crt', 'utf8');
 let credentials = {key: privateKey, cert: certificate};
 console.log("hola")
+var port = normalizePort(process.env.PORT || '8081');
+app.set('port', port);
 let server = http.createServer(app);
 let httpsServer = https.createServer(credentials, app);
 httpsServer.listen(4000);
@@ -26,8 +28,7 @@ server.listen(app.get('port'), function() {
  */
 //var server = http.createServer(app);
 // server.listen(app.get('port'))
-var port = normalizePort(process.env.PORT || '8081S');
-app.set('port', port);
+
 
 /**
  * Create HTTP server.
