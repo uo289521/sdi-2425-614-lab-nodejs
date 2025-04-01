@@ -18,19 +18,14 @@ module.exports = function (app, usersRepository) {
     let options = {};
     usersRepository.findUser(filter, options).then(user => {
       if (user == null) {
-        res.redirect("/users/login" +
-            "?message=Email o password incorrecto"+
-            "&messageType=alert-danger ");
+        res.render("error.twig", {message : "Usurario no identificado"});
 
       } else {
         req.session.user = user.email;
         res.redirect('/publications')
       }
     }).catch(error => {
-      req.session.user = null;
-      res.redirect("/users/login" +
-          "?message=Se ha producido un error al buscar el usuario"+
-          "&messageType=alert-danger ");
+      res.render("error.twig", {message : "Esto es un errror " , error : error})
     })
   });
   app.get('/users/logout', function (req, res) {
@@ -48,9 +43,7 @@ module.exports = function (app, usersRepository) {
       res.redirect('/users/login' + "?message=Nuevo usuario registrado." +
           "&messageType=alert-info");
     }).catch(error => {
-      res.redirect('/users/signup' +
-          "?message=Se ha producido un error al registrar el usuario." +
-          "&messageType=alert-danger");
+      res.render("error.twig", [{message : "Esto es un errror " }])
     });
   });
 

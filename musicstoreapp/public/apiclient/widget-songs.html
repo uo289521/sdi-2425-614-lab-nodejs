@@ -2,6 +2,7 @@
   <input type="text" class="form-control" placeholder="Filtrar por nombre" id="filter-by-name" />
   <button class="btn btn-primary" onclick="widgetAddSong()">Nueva Canción</button>
   <button class="btn" onclick="loadSongs()" >Actualizar</button>
+  <div id="error-message" class="alert alert-danger" style="display: none;"></div>
   <table class="table table-hover">
     <thead>
     <tr>
@@ -47,7 +48,8 @@
               "<td>" + songs[i].price + "</td>" +
               "<td>" +
               "<a onclick=songDetail('" + songs[i]._id + "')>Detalles</a><br>" +
-              "<a onclick=songDelete('" + songs[i]._id + "')>Eliminar</a>" +
+              "<a onclick=songDelete('" + songs[i]._id + "')>Eliminar</a><br>" +
+              "<a onclick=songUpdate('" + songs[i]._id + "')>Update</a><br>" +
               "</td>" +
               "</tr>");
       // Mucho cuidado con las comillas del eliminarCancion
@@ -60,6 +62,10 @@
     filteredSongs = songs.filter(song => song.title.toLowerCase().includes(filterValue.toLowerCase()));
     updateSongsTable(filteredSongs);
   });
+  function songUpdate(_id){
+    selectedSongId = _id;
+    $("#main-container").load("widget-update.html");
+  }
   function songDelete(_id) {
     $.ajax({
       url: URLbase + "/songs/" + _id,
@@ -72,7 +78,14 @@
         $("#" + _id).remove(); // eliminar el <tr> de la canción
       },
       error: function (error) {
-        $("#main-container").load("widget-login.html");
+        const errorMessage = error.responseJSON && error.responseJSON.error ? error.responseJSON.error : "Ocurrió un error inesperado.";
+
+        $("#error-message").text(errorMessage).show();
+
+
+        setTimeout(function() {
+          $("#error-message").hide();
+        }, 5000);
       }
     });
   }

@@ -3,24 +3,26 @@
     <label class="control-label col-sm-2" for="title">Nombre:</label>
     <div class="col-sm-10">
       <input type="text" class="form-control" name="title"
-             placeholder="Título de la canción" id="title" readonly/>
+             placeholder="Título de la canción" id="title" />
     </div>
   </div>
   <div class="form-group">
     <label class="control-label col-sm-2" for="kind">Género:</label>
     <div class="col-sm-10">
       <input type="text" class="form-control" name="kind"
-             placeholder="Género de la canción" id="kind" readonly/>
+             placeholder="Género de la canción" id="kind" />
     </div>
   </div>
   <div class="form-group">
     <label class="control-label col-sm-2" for="price">Precio (€):</label>
     <div class="col-sm-10">
       <input type="number" step="0.01" class="form-control" name="price"
-             placeholder="2.50" id="price" readonly/>
+             placeholder="2.50" id="price" />
     </div>
   </div>
+  <div id="error-message" style="color: red; display: none; margin-top: 10px;"></div>
   <button onclick="widgetSongs()" class="btn" >Volver</button>
+  <button onclick="act()" class="btn" >actualizar</button>
 </div>
 <script>
   $.ajax({
@@ -40,4 +42,46 @@
       $("#main-container").load("widget-login.html");
     }
   });
+
+  function act() {
+    // Captura los valores de los campos
+    var title = $("#title").val();
+    var kind = $("#kind").val();
+    var price = $("#price").val();
+
+    // Verificar que los campos no estén vacíos
+    if (!title || !kind || !price) {
+      alert("Por favor, complete todos los campos.");
+      return;
+    }
+
+    // Preparar los datos para actualizar
+    var songData = {
+      title: title,
+      kind: kind,
+      price: price
+    };
+
+    // Realizar la solicitud PUT
+    $.ajax({
+      url: URLbase + "/songs/" + selectedSongId,  // Utilizamos el ID de la canción seleccionada
+      type: "PUT",
+      data: JSON.stringify(songData),
+      contentType: "application/json",
+      dataType: 'json',
+      headers: {
+        "token": token
+      },
+      success: function (response) {
+        // Si la actualización es exitosa, mostrar un mensaje y volver a la lista
+        alert("Canción actualizada correctamente.");
+        $("#main-container").load("widget-songs.html");  // Cargar la vista de canciones
+      },
+      error: function (error) {
+        $("#error-message").text("No se puede actualizar la canción: el autor es diferente.");
+        $("#error-message").show();
+      }
+    });
+  }
+
 </script>

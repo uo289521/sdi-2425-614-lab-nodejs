@@ -20,6 +20,7 @@
              placeholder="2.50" id="price-add" />
     </div>
   </div>
+  <div id="error-message" class="alert alert-danger" style="display: none;"></div>
   <div class="col-sm-offset-2 col-sm-10">
     <button type="button" class="btn btn-primary" id="boton-add"
             onclick="widgetAddSong()">Nueva canción</button>
@@ -42,7 +43,16 @@
         $("#main-container").load("widget-songs.html");
       },
       error: function (error) {
-        $("#main-container").load("widget-login.html");
+        // Mostrar el mensaje de error
+        const errorMessage = error.responseJSON && error.responseJSON.error ? error.responseJSON.error : "Ocurrió un error inesperado.";
+
+        // Mostrar el mensaje en el contenedor de errores
+        $("#error-message").text(errorMessage).show();
+
+        // Ocultar el contenedor después de un tiempo (opcional)
+        setTimeout(function() {
+          $("#error-message").hide();
+        }, 5000); // Se oculta después de 5 segundos
       }
     });
   }
